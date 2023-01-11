@@ -21,6 +21,16 @@
           height="54"
           outlined
         ></v-text-field>
+        <v-radio-group class="positions" label="Select your position" v-model="form.position">
+          <v-radio
+            v-for="position in positions"
+            :key="position.id"
+            :label="position.name"
+            :value="position.id"
+            on-icon="$radioOn"
+            off-icon="$radioOff"
+          ></v-radio>
+        </v-radio-group>
       </v-form>
     </div>
   </div>
@@ -34,7 +44,23 @@ export default {
         name: '',
         email: '',
         phone: '',
+        position: '',
       },
+      positions: [],
+    }
+  },
+  created() {
+    this.getPositions()
+  },
+  methods: {
+    getPositions() {
+      fetch('https://frontend-test-assignment-api.abz.agency/api/v1/positions')
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        this.positions = data.positions
+      })
     }
   },
 }
@@ -67,6 +93,28 @@ export default {
 .v-text-field--outlined legend {
   margin-left: 12px;
 }
+/* .v-text-field--outlined:nth-child(3) .v-input__control {
+  margin-bottom: 0;
+} */
+.v-icon__component{
+  width: 20px;
+  height: 20px;
+}
+.v-input--selection-controls__ripple {
+  height: 0;
+}
+.v-input--selection-controls .v-radio > .v-label {
+  margin-left: 10px;
+}
+.v-input--radio-group--column .v-radio:not(:last-child):not(:only-child) {
+  margin-bottom: 9px;
+}
+.v-input--radio-group legend.v-label {
+  font-size: 16px;
+  margin-left: 2px;
+  margin-top: -1px;
+  margin-bottom: 6px;
+}
 </style>
 
 <style lang="scss" scoped>
@@ -82,6 +130,10 @@ export default {
     margin: 0 auto;
     margin-top: 50px;
     margin-bottom: 50px;
+    .positions {
+      margin-left: -2px;
+      margin-top: -7px;
+    }
   }
 }
 </style>
