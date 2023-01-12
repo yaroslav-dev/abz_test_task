@@ -83,6 +83,7 @@ export default {
   }
   .heading {
     text-align: center;
+    opacity: 0.87;
   }
   .users_container {
     display: flex;

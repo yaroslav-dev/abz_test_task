@@ -1,11 +1,15 @@
 <template>
-  <v-btn @click="$emit('click')" class="btn" rounded depressed plain>
+  <v-btn @click="$emit('click')" class="btn" :disabled="disabled" rounded depressed plain>
     <slot name="btn"></slot>
   </v-btn>
 </template>
 
 <script>
-export default {};
+export default {
+  props: {
+    disabled: Boolean,
+  },
+};
 </script>
 
 <style lang="scss">
