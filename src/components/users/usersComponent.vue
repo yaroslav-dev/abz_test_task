@@ -33,6 +33,16 @@ export default {
       page: 1,
     }
   },
+  props: {
+    updatingUsers: Boolean,
+  },
+  watch: {
+    updatingUsers() {
+      this.page = 1
+      this.users = []
+      this.getUsers()
+    }
+  },
   components: {
     UserCard,
     Button
@@ -68,7 +78,6 @@ export default {
 .users_block {
   width: 100%;
   padding-top: 140px;
-  // padding-bottom: 140px;
   @media screen and (max-width: 767px) {
     padding-left: 16px;
     padding-right: 16px;

@@ -11,11 +11,3 @@
     <circle cx="10" cy="10" r="4.5" fill="#00BDD3" stroke="#00BDD3" />
   </svg>
 </template>
-
-<script>
-export default {};
-</script>
-
-<style>
-
-</style>

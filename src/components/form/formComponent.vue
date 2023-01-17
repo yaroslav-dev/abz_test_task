@@ -2,10 +2,11 @@
   <div class="form_block">
     <h1 class="heading">Working with POST request</h1>
     <div class="form_container">
-      <v-form>
+      <v-form ref="form">
         <v-text-field
           v-model="form.name"
-          :rules="[() => !!form.name || 'Enter your name']"
+          :rules="[() => !!form.name && form.name.length >= 2 && form.name.length < 60 || 'Enter your name']"
+          @input="formCheck()"
           type="text"
           label="Your name"
           height="54"
@@ -14,8 +15,11 @@
         ></v-text-field>
         <v-text-field
           v-model="form.email"
-          :rules="[() => !!form.email || 'Enter your email']"
-          :error-messages="invalidEmail"
+          :rules="[
+            () => !!form.email && form.email.length >= 2 && form.email.length <= 100 || 'Enter your email',
+            () => emailValidation(form.email) || 'Enter correct email'
+          ]"
+          @input="formCheck()"
           type="email"
           label="Email"
           height="54"
@@ -25,12 +29,17 @@
         ></v-text-field>
         <v-text-field
           v-model="form.phone"
-          :rules="[() => !!form.phone || 'Enter your phone number']"
+          :rules="[
+            () => !!form.phone || 'Enter your phone number',
+            () => phoneValidation(form.phone) || 'Enter correct phone number',
+          ]"
+          @input="formCheck()"
           type="tel"
           label="Phone"
           height="54"
           outlined
           required
+          validate-on-blur
         ></v-text-field>
         <v-radio-group class="positions" label="Select your position" v-model="form.position_id" mandatory>
           <v-radio
@@ -43,7 +52,10 @@
           ></v-radio>
         </v-radio-group>
         <v-file-input
-          accept="image/*"
+          accept=".jpg, .jpeg,"
+          :rules="[value => !value || value.size < 5000000 || 'Photo size should be less than 5 MB!']"
+          @change="formCheck()"
+          @input="formCheck()"
           placeholder="Upload your photo"
           prepend-icon=""
           height="54"
@@ -54,7 +66,7 @@
           </template>
         </v-file-input>
         <div class="btn_container">
-          <Button @click="addUser()" :disabled="false">
+          <Button @click="addUser()" :disabled="!validationPass">
             <template v-slot:btn>Sign up</template>
           </Button>
         </div>
@@ -79,14 +91,40 @@ export default {
       formData: null,
       positions: [],
       token: null,
-      invalidEmail: '',
       validationPass: false,
+      reset: false,
     }
   },
   created() {
     this.getPositions()
   },
   methods: {
+    emailValidation(email) {
+      const regex = new RegExp('^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])$', '')
+      return regex.test(email)
+    },
+    phoneValidation(phone) {
+      const regex = new RegExp('^[\\+]{0,1}380([0-9]{9})$', '')
+      return regex.test(phone)
+    },
+    formCheck() {
+      if (!this.reset) {
+        Object.keys(this.form).forEach(item => {
+          if (item == 'name') {
+           this.form[item] && this.form[item].length >= 2 && this.form[item].length <= 60 ? this.validationPass = true : this.validationPass = false
+          }
+          if (item === 'email') {
+            this.emailValidation(this.form[item]) && this.form[item].length >= 2 && this.form[item].length <= 100 ? this.validationPass = true : this.validationPass = false
+          }
+          if (item === 'phone') {
+            this.phoneValidation(this.form[item]) ? this.validationPass = true : this.validationPass = false
+          }
+        })
+        document.querySelector('input[type="file"]').files.length ? this.validationPass = true : this.validationPass = false
+      } else {
+        this.validationPass = false
+      }
+    },
     uploadFile() {
       document.querySelector('input[type="file"]').click()
     },
@@ -100,37 +138,47 @@ export default {
       })
     },
     addUser() {
-      fetch('https://frontend-test-assignment-api.abz.agency/api/v1/token')
-        .then(response => {
-          return response.json()
-        })
-        .then(data => {
-          this.token = data.token
-          this.form.photo = document.querySelector('input[type="file"]').files[0]
-          this.formData = new FormData()
-          this.formData.append('name', this.form.name)
-          this.formData.append('email', this.form.email)
-          this.formData.append('phone', this.form.phone)
-          this.formData.append('position_id', this.form.position_id)
-          this.formData.append('photo', this.form.photo)
-        })
-        .then(() => {
-          fetch('https://frontend-test-assignment-api.abz.agency/api/v1/users', {
-            method: 'POST',
-            body: this.formData,
-            headers: {
-              'Token': this.token,
-            }, })
-            .then(response => {
-              return response.json()
-            })
-            .catch(error => {
-              console.warn(error)
-            })
-        })
-        .catch(error => {
-          console.warn(error)
-        })
+      if (this.validationPass) {
+        fetch('https://frontend-test-assignment-api.abz.agency/api/v1/token')
+          .then(response => {
+            return response.json()
+          })
+          .then(data => {
+            this.token = data.token
+            this.form.photo = document.querySelector('input[type="file"]').files[0]
+            this.formData = new FormData()
+            this.formData.append('name', this.form.name)
+            this.formData.append('email', this.form.email)
+            this.formData.append('phone', this.form.phone)
+            this.formData.append('position_id', this.form.position_id)
+            this.formData.append('photo', this.form.photo)
+            console.log(this.formData)
+          })
+          .then(() => {
+            fetch('https://frontend-test-assignment-api.abz.agency/api/v1/users', {
+              method: 'POST',
+              body: this.formData,
+              headers: {
+                'Token': this.token,
+              }, })
+              .then(response => {
+                return response.json()
+              })
+              .then(data => {
+                if (data.success) {
+                  this.$emit('updateUsers')
+                  this.$refs.form.reset()
+                  this.validationPass = false
+                }
+              })
+              .catch(error => {
+                console.warn(error)
+              })
+          })
+          .catch(error => {
+            console.warn(error)
+          })
+      }
     },
   },
   components: {
@@ -207,7 +255,7 @@ export default {
 .form_block {
   width: 100%;
   padding-top: 140px;
-  padding-bottom: 140px;
+  padding-bottom: 50px;
   .heading {
     text-align: center;
     opacity: 0.87;

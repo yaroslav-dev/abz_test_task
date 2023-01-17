@@ -22,8 +22,13 @@ export default {
   background-color: $bg_yellow !important;
   transition: all 0.3s;
 }
-.btn:hover {
+.btn:hover,
+.btn:active {
   background-color: $bg_yellow_hover !important;
+}
+.theme--light.v-btn.v-btn--disabled {
+  background-color: $bg_disabled !important;
+  color: rgba(255, 255, 255, 0.87) !important;
 }
 .v-btn__content {
   opacity: 1 !important;

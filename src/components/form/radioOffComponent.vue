@@ -9,10 +9,3 @@
     <circle cx="10" cy="10" r="9.5" stroke="#D0CFCF" />
   </svg>
 </template>
-
-<script>
-export default {};
-</script>
-
-<style>
-</style>
