@@ -59,9 +59,11 @@ export default {
       })
       .then(data => {
         this.loaded()
-        this.totalPages = data.total_pages
-        this.users.push(...data.users)
-        this.page++
+        if (data.success) {
+          this.totalPages = data.total_pages
+          this.users.push(...data.users)
+          this.page++
+        }
       })
     },
     loading() {
@@ -91,6 +93,8 @@ export default {
     padding-right: 60px;
   }
   .heading {
+    padding-left: 16px;
+    padding-right: 16px;
     text-align: center;
     opacity: 0.87;
   }

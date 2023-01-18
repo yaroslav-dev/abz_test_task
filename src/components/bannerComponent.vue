@@ -27,7 +27,7 @@ export default {
   },
   methods: {
     scrollToForm() {
-      let formBlock = document.querySelector('.form_block')
+      let formBlock = document.querySelector('.form_block') ? document.querySelector('.form_block') : document.querySelector('.success_block')
       formBlock.scrollIntoView({block: "start", behavior: "smooth"})
     },
   },

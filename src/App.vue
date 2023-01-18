@@ -1,8 +1,19 @@
 <template>
   <div id="app">
-    <router-view/>
+    <!-- <router-view/> -->
+    <Home />
   </div>
 </template>
+
+<script>
+import Home from "@/views/HomeView.vue"
+
+export default {
+  components: {
+    Home
+  },
+}
+</script>
 
 <style lang="scss">
 @import '~vuetify/src/styles/styles.sass';

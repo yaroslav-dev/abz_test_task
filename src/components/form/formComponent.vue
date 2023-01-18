@@ -66,7 +66,13 @@
           </template>
         </v-file-input>
         <div class="btn_container">
-          <Button @click="addUser()" :disabled="!validationPass">
+          <v-progress-circular
+            v-if="loader"
+            class="loader"
+            size="48"
+            indeterminate
+          ></v-progress-circular>
+          <Button v-else @click="addUser()" :disabled="!validationPass">
             <template v-slot:btn>Sign up</template>
           </Button>
         </div>
@@ -93,12 +99,19 @@ export default {
       token: null,
       validationPass: false,
       reset: false,
+      loader: false,
     }
   },
   created() {
     this.getPositions()
   },
   methods: {
+    loading() {
+      this.loader = true
+    },
+    loaded() {
+      this.loader = false
+    },
     emailValidation(email) {
       const regex = new RegExp('^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])$', '')
       return regex.test(email)
@@ -139,6 +152,7 @@ export default {
     },
     addUser() {
       if (this.validationPass) {
+        this.loading()
         fetch('https://frontend-test-assignment-api.abz.agency/api/v1/token')
           .then(response => {
             return response.json()
@@ -165,6 +179,7 @@ export default {
                 return response.json()
               })
               .then(data => {
+                this.loaded()
                 if (data.success) {
                   this.$emit('updateUsers')
                   this.$refs.form.reset()
@@ -256,7 +271,11 @@ export default {
   width: 100%;
   padding-top: 140px;
   padding-bottom: 50px;
+  padding-left: 16px;
+  padding-right: 16px;
   .heading {
+    padding-left: 16px;
+    padding-right: 16px;
     text-align: center;
     opacity: 0.87;
   }
@@ -283,6 +302,10 @@ export default {
     .btn_container {
       display: flex;
       justify-content: center;
+      .loader {
+        color: $bg_blue;
+        border-radius: 8px;
+      }
     }
   }
 }
